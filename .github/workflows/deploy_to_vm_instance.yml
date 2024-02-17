@@ -43,5 +43,7 @@ jobs:
             script: |
                 cd /home/bot/build
                 npm ci
+                cp /home/bot/.env /home/bot/build/.env
+                cp /home/bot/config.json /home/bot/build/config.json
                 npm start
                 
