@@ -45,5 +45,6 @@ jobs:
                 npm ci
                 cp /home/bot/.env /home/bot/build/.env
                 cp /home/bot/config.json /home/bot/build/config.json
+                npx pm2 delete index
                 npm start
                 
