@@ -21,7 +21,7 @@ jobs:
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.SSH_PASSPHRASE }}
             script: |
-                rm -rf /home/bot/build/*
+                rm -rf /home/bot/build/
 
       - name: Copy files to VM
         uses: appleboy/scp-action@master
