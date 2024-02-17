@@ -13,6 +13,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: delete previous build
+        uses: appleboy/scp-action@master
+        with:
+            host: ${{ secrets.HOST }} 
+            username: ${{ secrets.USERNAME }}
+            key: ${{ secrets.SSH_KEY }}
+            passphrase: ${{ secrets.SSH_PASSPHRASE }}
+            script: |
+                rm -rf /home/bot/build/*
+
       - name: Copy files to VM
         uses: appleboy/scp-action@master
         with:
@@ -20,7 +30,7 @@ jobs:
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.SSH_PASSPHRASE }}
-            source: '.' # 현재 디렉토리의 파일 및 폴더를 복사
+            source: './src/*, package.json, package-lock.json' # 현재 디렉토리의 파일 및 폴더를 복사
             target: '/home/bot/build' # VM 인스턴스의 /home/bot 경로로 복사
 
     #   - name: SSH into VM and restart application
