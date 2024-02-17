@@ -19,6 +19,7 @@ jobs:
             host: ${{ secrets.HOST }} 
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.SSH_KEY }}
+            passphrase: ${{ secrets.SSH_PASSPHRASE }}
             source: '.' # 현재 디렉토리의 파일 및 폴더를 복사
             target: '/home/bot' # VM 인스턴스의 /home/bot 경로로 복사
 
@@ -28,6 +29,7 @@ jobs:
             host: ${{ secrets.HOST }} 
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.SSH_KEY }}
+            passphrase: ${{ secrets.SSH_PASSPHRASE }}
             script: |
                 cd /home/bot
                 node .
