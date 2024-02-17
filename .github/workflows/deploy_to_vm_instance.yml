@@ -19,8 +19,8 @@ jobs:
             host: ${{ secrets.HOST }} 
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.SSH_KEY }}
-          source: '.' # 현재 디렉토리의 파일 및 폴더를 복사
-          target: '/home/bot' # VM 인스턴스의 /home/bot 경로로 복사
+            source: '.' # 현재 디렉토리의 파일 및 폴더를 복사
+            target: '/home/bot' # VM 인스턴스의 /home/bot 경로로 복사
 
       - name: SSH into VM and restart application
         uses: appleboy/ssh-action@master
@@ -29,6 +29,6 @@ jobs:
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.SSH_KEY }}
             port: 22
-          script: |
-            cd /home/bot
-            node ./index.js
+            script: |
+                cd /home/bot
+                node ./index.js
