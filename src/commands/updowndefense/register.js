@@ -43,7 +43,7 @@ module.exports = {
                 return interaction.editReply({ content: '다른 사람이 등록 중인 아이디입니다.' });
             }
 
-            const randomString = '주때 팬이에요 ' + Math.random().toString(15).substring(2, 15) + Math.random().toString(15).substring(2, 15);
+            const randomString = '주때봇에 등록중! ' + Math.random().toString(15).substring(2, 15) + Math.random().toString(15).substring(2, 15);
             registerProgress.set(bojId, { userId, randomString });
             registerUser.set(userId, { bojId });
 
