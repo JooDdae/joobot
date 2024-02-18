@@ -35,7 +35,7 @@ module.exports = async (interaction) => {
         const problems = await getRandomProblems(problemQuery, 1);
     
         if (problems.length === 0) {
-            return interaction.editReply({ content: `${problemQuery}에 해당하는 문제가 존재하지 않습니다. /update-defense 명령어를 통해 난이도를 변경하거나 추가 쿼리를 변경해주세요.` });
+            return interaction.editReply({ content: `${problemQuery}에 해당하는 문제가 존재하지 않습니다. \`/updown-random-defense [쿼리]\` 명령어를 통해 난이도를 변경하거나 추가 쿼리를 변경해주세요.` });
         }
 
 

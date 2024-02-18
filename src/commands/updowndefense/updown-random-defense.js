@@ -5,36 +5,58 @@ const startNewDefense = require('../../updowndefense/startNewDefense');
 const UpdownDefense = require('../../models/UpdownDefense');
 const numberToTier = require('../../utils/numberToTier');
 const { defenseParticipants } = require('../../updowndefense/startNewDefense');
+const isValidSolvedacQuery = require('../../solvedac/isValidSolvedacQuery');
 
 module.exports = {
     callback: async (client, interaction) => {
         await interaction.deferReply({ ephemeral: true });
         
+        const updownDefense = await UpdownDefense.findOne({ userId });
+        if (!updownDefense) {
+            return interaction.editReply({ content: `봇에 등록되어 있지 않습니다. \`/register [백준 아이디]\`를 통해 등록해주세요.` });
+        }
 
         const userId = interaction.user.id;
         const tier = interaction.options.get('난이도')?.value;
+        const query = interaction.options.get('쿼리')?.value;
 
-        if (tier) {
+        if (tier || query) {
             if (defenseParticipants.has(userId)) {
-                return interaction.editReply({ content: '디펜스 중에는 난이도를 변경할 수 없습니다.' });
+                return interaction.editReply({ content: '디펜스 중에는 옵션을 변경할 수 없습니다.' });
             }
 
-            try {
-                const updownDefense = await UpdownDefense.findOne({ userId });
-                if (!updownDefense) {
-                    return interaction.editReply({ content: `업다운 랜덤 디펜스에 등록되어 있지 않습니다.` });
+            if(tier) {
+                try {
+                    if (updownDefense.currentTier === tier) {
+                        await interaction.followUp({ content: '이미 해당 난이도로 설정되어 있습니다.' });
+                    } else {
+                        const previousTier = updownDefense.currentTier;
+                        updownDefense.currentTier = tier;
+                        await updownDefense.save();
+                        await interaction.followUp({ content: `난이도가 \`${numberToTier(previousTier)}\`에서 \`${numberToTier(tier)}\`로 변경되었습니다.` });
+                    }
+                } catch (error) {
+                    console.log(`There was an error trying to edit tier: ${error}`);
                 }
-
-                if (updownDefense.currentTier === tier) {
-                    return interaction.editReply({ content: '이미 해당 난이도로 설정되어 있습니다.' });
-                }
-
-                updownDefense.currentTier = tier;
-                await updownDefense.save();
-                await interaction.editReply({ content: `난이도가 ${numberToTier(tier)}로 변경되었습니다.` });
-            } catch (error) {
-                console.log(`There was an error trying to edit tier: ${error}`);
             }
+
+            if (query) {
+                try {
+                    if (updownDefense.additionalQuery === query) {
+                        await interaction.followUp({ content: '이미 해당 쿼리로 설정되어 있습니다.' });
+                    } else if (await isValidSolvedacQuery(query) === false) {
+                        await interaction.editReply({ content: '올바르지 않은 쿼리입니다.' });
+                    } else {
+                        const previousQuery = updownDefense.additionalQuery;
+                        updownDefense.additionalQuery = query;
+                        await updownDefense.save();
+                        await interaction.followUp({ content: `추가 쿼리가 \`${previousQuery}\`에서 \`${query}\`로 변경되었습니다.` });
+                    }
+                } catch (error) {
+                    console.log(`There was an error trying to edit query: ${error}`);
+                }
+            }
+
         } else {
             await startNewDefense(interaction);
         }
@@ -48,6 +70,11 @@ module.exports = {
     // permissionsRequired: [PermissionFlagsBits.Administrator],
     // botsPermissions: [PermissionFlagsBits.Administrator],
     options: [
+        {
+            name: '쿼리',
+            description: '추가할 쿼리를 입력해주세요.',
+            type: ApplicationCommandOptionType.String,
+        },
         {
             name: '난이도',
             description: '수정할 난이도를 선택합니다.',
