@@ -4,27 +4,23 @@ const startNewDefense = require('../../updowndefense/startNewDefense');
 
 const UpdownDefense = require('../../models/UpdownDefense');
 const numberToTier = require('../../utils/numberToTier');
-const { defenseParticipants } = require('../../updowndefense/defenseVariables');
+const { defenseParticipants } = require('../../updowndefense/startNewDefense');
 
 module.exports = {
     callback: async (client, interaction) => {
         await interaction.deferReply({ ephemeral: true });
         
 
+        const userId = interaction.user.id;
         const tier = interaction.options.get('난이도')?.value;
 
         if (tier) {
-            const query = {
-                userId: interaction.user.id,
-                guildId: interaction.guild.id,
-            };
-
-            if (defenseParticipants.has(interaction.user.id)) {
+            if (defenseParticipants.has(userId)) {
                 return interaction.editReply({ content: '디펜스 중에는 난이도를 변경할 수 없습니다.' });
             }
 
             try {
-                const updownDefense = await UpdownDefense.findOne(query);
+                const updownDefense = await UpdownDefense.findOne({ userId });
                 if (!updownDefense) {
                     return interaction.editReply({ content: `업다운 랜덤 디펜스에 등록되어 있지 않습니다.` });
                 }

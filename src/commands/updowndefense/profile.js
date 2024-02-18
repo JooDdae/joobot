@@ -13,7 +13,7 @@ module.exports = {
             return interaction.reply({ content: '이 명령어는 서버에서만 사용할 수 있습니다.' });
         }
 
-        await interaction.deferReply();
+        await interaction.deferReply({ ephemeral: true });
 
         const mentionedUserId = interaction.options.get('유저')?.value;
         const targetUserId = mentionedUserId || interaction.user.id;
@@ -26,11 +26,11 @@ module.exports = {
         const fetchedUser = await UpdownDefense.findOne({ userId: targetUserId });
 
         if (!fetchedUser) {
-            return interaction.editReply({ content: `${targetUserObject.user.displayName}(${targetUserObject.user.tag})님은 아직 업다운 랜덤 디펜스에 등록하지 않았습니다.` });
+            return interaction.editReply({ content: `${targetUserObject.nickname}님은 아직 업다운 랜덤 디펜스에 등록하지 않았습니다.` });
         }
 
         const embed = new EmbedBuilder()
-            .setAuthor({ name: targetUserObject.user.displayName, iconURL: targetUserObject.user.avatarURL() })
+            .setAuthor({ name: targetUserObject.nickname, iconURL: targetUserObject.user.avatarURL() })
             .setTitle(fetchedUser.bojId)
             .setDescription(`현재 랜덤 티어: ${numberToTier(fetchedUser.currentTier)}`)
             .addFields(
@@ -39,7 +39,8 @@ module.exports = {
             .setTimestamp()
             .setColor(0xFAAABC);
         
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({ content: '프로필을 불러오는 중입니다...' });
+        await interaction.followUp({ embeds: [embed] });
     },
 
     name: 'profile',

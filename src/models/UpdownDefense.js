@@ -5,27 +5,19 @@ const updownDefenseSchema = new Schema({
         type: String,
         required: true,
     },
-    guildId: {
-        type: String,
-        required: true,
-    },
     bojId: {
         type: String,
         required: true,
     },
     currentTier: {
         type: Number,
-        default: 1,
+        default: 11,
+    },
+    additionalQuery: {
+        type: String,
+        default: 's#10..',
     },
     numberOfSolvedProblems: {
-        type: Number,
-        default: 0,
-    },
-    timeLimit: {
-        type: Number,
-        default: 40 * 60 * 1000,
-    },
-    penalty: {
         type: Number,
         default: 0,
     },
