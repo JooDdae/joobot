@@ -4,7 +4,7 @@ module.exports = async (interaction) => {
     message += `\`/register [백준 아이디]\`를 통해 등록할 수 있습니다.\n`;
     message += `\`/profile\`을 통해 프로필을 확인할 수 있습니다.\n`;
     message += `\`/updown-random-defense\`를 통해 업다운 랜덤 디펜스를 시작할 수 있습니다.\n`;
-    message += `\`/updown-random-defense [옵션]\`을 통해 \`시작 티어\`혹은 \`추가 쿼리\`을 설정할 수 있습니다.\n`;
+    message += `\`/updown-random-defense [옵션]\`을 통해 \`시작 티어\` 혹은 \`추가 쿼리\`를 설정할 수 있습니다.\n`;
 
     await interaction.editReply({ content: message });
 }

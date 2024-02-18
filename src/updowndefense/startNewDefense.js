@@ -94,7 +94,6 @@ module.exports = async (interaction) => {
         const buttonRow = new ActionRowBuilder().addComponents(updateButton, emptyButton, giveupButton);
         
         
-        const member = await interaction.guild.members.fetch(userId);
         const lastSubmissionId = (await getRecentSubmission(interaction.user.id))?.submissionId || 0;
         const startTime = Date.now();
 
@@ -104,7 +103,7 @@ module.exports = async (interaction) => {
         await interaction.editReply({ content: '업다운 랜덤 디펜스를 시작합니다!' });
         await interaction.deleteReply();
 
-        const message = await interaction.followUp({ embeds: [embed], components: [buttonRow] });
+        const message = await interaction.followUp({ content: `<@${userId}>`, embeds: [embed], components: [buttonRow] });
 
 
         const collector = message.createMessageComponentCollector({
@@ -115,13 +114,14 @@ module.exports = async (interaction) => {
         const endSession = async () => {
             buttonRow.components[0].setDisabled(true);
             buttonRow.components[2].setDisabled(true);
-            await message.edit({ embeds: [embed], components: [buttonRow] });
+            await message.edit({ content: ' ', embeds: [embed], components: [buttonRow] });
             defenseParticipants.delete(userId);
             await collector.stop();
         };
 
         const succeededDefense = async () => {
             updownDefense.numberOfSolvedProblems += 1;
+            // updownDefense.numberOfSolvedProblems[problemTier] += 1;
             await updownDefense.save();
             if (updownDefense.currentTier < 30) {
                 updownDefense.currentTier += 1;
@@ -132,7 +132,7 @@ module.exports = async (interaction) => {
             }
 
             await endSession();
-            return await interaction.followUp({ content: `${member.nickname || interaction.user.displayName}(${bojId})님이 디펜스를 성공적으로 완료하였습니다! 🎉` });
+            return await message.reply({ content: `<@${userId}>(${bojId})님이 디펜스를 성공적으로 완료하였습니다! 🎉` });
         };
 
         const failedDefense = async (reason) => {
@@ -145,11 +145,11 @@ module.exports = async (interaction) => {
             }
 
             await endSession();
-            return await interaction.followUp({ content: `${member.nickname || interaction.user.displayName}(${bojId})님이 ${reason}` });
+            return await message.reply({ content: `<@${userId}>(${bojId})님이 ${reason}` });
         };
 
         const updateEmbed = async () => {
-            const leftTime = getTimeLimit(problemTier) - (Date.now() - startTime);
+            const leftTime = Math.max(0, getTimeLimit(problemTier) - (Date.now() - startTime));
             embed.spliceFields(2, 1, { name: '남은 시간', value: `${numberToKoTime(leftTime)}`, inline: true });
 
             const submissions = await getSubmissionsBetween(updownDefense.bojId, problemId, lastSubmissionId);
