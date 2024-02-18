@@ -13,13 +13,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: delete previous build
+      - name: Delete Previous Build
         uses: appleboy/ssh-action@master
         with:
             host: ${{ secrets.HOST }} 
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.SSH_PASSPHRASE }}
+            port: ${{ secrets.PORT }}
             script: |
                 rm -rf /home/bot/build/
 
@@ -30,6 +31,7 @@ jobs:
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.SSH_PASSPHRASE }}
+            port: ${{ secrets.PORT }}
             source: './src/*, package.json, package-lock.json' # 현재 디렉토리의 파일 및 폴더를 복사
             target: '/home/bot/build' # VM 인스턴스의 /home/bot 경로로 복사
 
@@ -40,6 +42,7 @@ jobs:
             username: ${{ secrets.USERNAME }}
             key: ${{ secrets.SSH_KEY }}
             passphrase: ${{ secrets.SSH_PASSPHRASE }}
+            port: ${{ secrets.PORT }}
             script: |
                 cd /home/bot/build
                 npm ci
