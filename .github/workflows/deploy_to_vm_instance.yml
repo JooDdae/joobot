@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v0.1.4
+        uses: actions/checkout@v2
 
       - name: Delete Previous Build
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v0.1.4
         with:
             host: ${{ secrets.HOST }} 
             username: ${{ secrets.USERNAME }}
