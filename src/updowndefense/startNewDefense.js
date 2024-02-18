@@ -155,12 +155,15 @@ module.exports = async (interaction) => {
             const submissions = await getSubmissionsBetween(updownDefense.bojId, problemId, lastSubmissionId);
             let submissionStatus = '';
             for (const submission of submissions) {
+                if(submissionStatus.length > 0 && submissionStatus.length % 10 === 0) submissionStatus += '\n';
+
                 if (submission.submissionResult === 'ac') submissionStatus += '✅';
                 else if (submission.submissionResult === 'judging' || submission.submissionResult === 'wait' || submission.submissionResult === 'compile') submissionStatus += '⏳';
                 else submissionStatus += '❌';
             }
             if (submissionStatus.length === 0) submissionStatus = ' ';
             embed.spliceFields(3, 1, { name: '제출 현황', value: `${submissionStatus}` });
+            embed.setTimestamp();
             await message.edit({ embeds: [embed], components: [buttonRow] });
             
             if (submissionStatus.includes('✅')) {

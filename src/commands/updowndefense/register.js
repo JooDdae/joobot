@@ -118,7 +118,7 @@ module.exports = {
     },
 
     name: 'register',
-    description: '업다운 랜덤 디펜스에 등록합니다.',
+    description: '주때봇에 등록합니다.',
     // devOnly: true,
     // testOnly: Boolean,
     // deleted: true,
