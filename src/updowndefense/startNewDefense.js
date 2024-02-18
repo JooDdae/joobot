@@ -156,7 +156,7 @@ module.exports = async (interaction) => {
             let submissionStatus = '';
             for (const submission of submissions) {
                 if (submission.submissionResult === 'ac') submissionStatus += '✅';
-                else if (submission.submissionResult === 'judging') submissionStatus += '⏳';
+                else if (submission.submissionResult in ['judging', 'compile', 'wait']) submissionStatus += '⏳';
                 else submissionStatus += '❌';
             }
             if (submissionStatus.length === 0) submissionStatus = ' ';
