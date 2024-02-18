@@ -11,29 +11,29 @@ module.exports = {
     callback: async (client, interaction) => {
         await interaction.deferReply({ ephemeral: true });
         
+        const userId = interaction.user.id;
         const updownDefense = await UpdownDefense.findOne({ userId });
         if (!updownDefense) {
             return interaction.editReply({ content: `봇에 등록되어 있지 않습니다. \`/register [백준 아이디]\`를 통해 등록해주세요.` });
         }
 
-        const userId = interaction.user.id;
         const tier = interaction.options.get('난이도')?.value;
         const query = interaction.options.get('쿼리')?.value;
 
         if (tier || query) {
-            if (defenseParticipants.has(userId)) {
+            if (defenseParticipants && defenseParticipants.has(userId)) {
                 return interaction.editReply({ content: '디펜스 중에는 옵션을 변경할 수 없습니다.' });
             }
 
             if(tier) {
                 try {
                     if (updownDefense.currentTier === tier) {
-                        await interaction.followUp({ content: '이미 해당 난이도로 설정되어 있습니다.' });
+                        await interaction.followUp({ content: '이미 해당 난이도로 설정되어 있습니다.', ephemeral: true });
                     } else {
                         const previousTier = updownDefense.currentTier;
                         updownDefense.currentTier = tier;
                         await updownDefense.save();
-                        await interaction.followUp({ content: `난이도가 \`${numberToTier(previousTier)}\`에서 \`${numberToTier(tier)}\`로 변경되었습니다.` });
+                        await interaction.followUp({ content: `난이도가 \`${numberToTier(previousTier)}\`에서 \`${numberToTier(tier)}\`로 변경되었습니다.`, ephemeral: true });
                     }
                 } catch (error) {
                     console.log(`There was an error trying to edit tier: ${error}`);
@@ -42,15 +42,17 @@ module.exports = {
 
             if (query) {
                 try {
-                    if (updownDefense.additionalQuery === query) {
-                        await interaction.followUp({ content: '이미 해당 쿼리로 설정되어 있습니다.' });
+                    if (query.includes('*') || query.includes('tier')) {
+                        await interaction.followUp({ content: '난이도와 관련된 쿼리는 사용할 수 없습니다.', ephemeral: true });
+                    } else if (updownDefense.additionalQuery === query) {
+                        await interaction.followUp({ content: '이미 해당 쿼리로 설정되어 있습니다.', ephemeral: true });
                     } else if (await isValidSolvedacQuery(query) === false) {
-                        await interaction.editReply({ content: '올바르지 않은 쿼리입니다.' });
+                        await interaction.editReply({ content: '올바르지 않은 쿼리입니다.', ephemeral: true });
                     } else {
                         const previousQuery = updownDefense.additionalQuery;
                         updownDefense.additionalQuery = query;
                         await updownDefense.save();
-                        await interaction.followUp({ content: `추가 쿼리가 \`${previousQuery}\`에서 \`${query}\`로 변경되었습니다.` });
+                        await interaction.followUp({ content: `추가 쿼리가 \`${previousQuery}\`에서 \`${query}\`로 변경되었습니다.`, ephemeral: true });
                     }
                 } catch (error) {
                     console.log(`There was an error trying to edit query: ${error}`);

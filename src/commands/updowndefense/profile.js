@@ -32,9 +32,9 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setAuthor({ name: targetUserObject.nickname, iconURL: targetUserObject.user.avatarURL() })
             .setTitle(fetchedUser.bojId)
-            .setDescription(`현재 랜덤 티어: ${numberToTier(fetchedUser.currentTier)}`)
+            .setDescription(`현재 랜덤 티어: ${numberToTier(fetchedUser.currentTier)}\n현재 추가 쿼리: \`${fetchedUser.additionalQuery}\``)
             .addFields(
-                { name: '성공한 문제 수', value: `${fetchedUser.numberOfSolvedProblems}`},
+                { name: '성공한 문제 수', value: `${fetchedUser.numberOfSolvedProblems}`, inline: true },
             )
             .setTimestamp()
             .setColor(0xFAAABC);

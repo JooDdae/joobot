@@ -7,6 +7,7 @@ module.exports = {
         const query = interaction.options.getString('쿼리') || "";
         const count = interaction.options.getInteger('개수') || 1;
         const problems = await getRandomProblems(query, count);
+        if(problems.length === 0) return interaction.editReply(`해당 쿼리에 대한 문제를 찾을 수 없습니다.`);
         await interaction.editReply(problems.map(problem => `<https://www.acmicpc.net/problem/${problem.problemId}>`).join("\n"));
     },
 
