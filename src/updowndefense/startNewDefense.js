@@ -132,7 +132,7 @@ module.exports = async (interaction) => {
             }
 
             await endSession();
-            return await interaction.followUp({ content: `${member.nickname}(${bojId})님이 디펜스를 성공적으로 완료하였습니다! 🎉` });
+            return await interaction.followUp({ content: `${member.nickname || interaction.user.displayName}(${bojId})님이 디펜스를 성공적으로 완료하였습니다! 🎉` });
         };
 
         const failedDefense = async (reason) => {
@@ -145,7 +145,7 @@ module.exports = async (interaction) => {
             }
 
             await endSession();
-            return await interaction.followUp({ content: `${member.nickname}(${bojId})님이 ${reason}` });
+            return await interaction.followUp({ content: `${member.nickname || interaction.user.displayName}(${bojId})님이 ${reason}` });
         };
 
         const updateEmbed = async () => {

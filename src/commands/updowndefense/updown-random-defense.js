@@ -17,8 +17,8 @@ module.exports = {
             return interaction.editReply({ content: `봇에 등록되어 있지 않습니다. \`/register [백준 아이디]\`를 통해 등록해주세요.` });
         }
 
-        const tier = interaction.options.get('난이도')?.value;
-        const query = interaction.options.get('쿼리')?.value;
+        const tier = interaction.options.get('난이도변경')?.value;
+        const query = interaction.options.get('쿼리변경')?.value;
 
         if (tier || query) {
             if (defenseParticipants && defenseParticipants.has(userId)) {
@@ -73,13 +73,13 @@ module.exports = {
     // botsPermissions: [PermissionFlagsBits.Administrator],
     options: [
         {
-            name: '쿼리',
-            description: '추가할 쿼리를 입력해주세요.',
+            name: '쿼리변경',
+            description: '변경할 쿼리를 입력해주세요.',
             type: ApplicationCommandOptionType.String,
         },
         {
-            name: '난이도',
-            description: '수정할 난이도를 선택합니다.',
+            name: '난이도변경',
+            description: '변경할 난이도를 선택합니다.',
             type: ApplicationCommandOptionType.Integer,
             choices: [
                 {
