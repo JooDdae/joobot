@@ -15,11 +15,17 @@ const updownDefenseSchema = new Schema({
     },
     additionalQuery: {
         type: String,
-        default: 's#10..',
+        default: 's#50..',
     },
     numberOfSolvedProblems: {
-        type: Number,
-        default: 0,
+        type: Array,
+        default: [0, 
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0],
     },
 });
 
