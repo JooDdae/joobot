@@ -202,5 +202,4 @@ module.exports = async (interaction) => {
     } catch (error) {
         console.log(`There was an error trying to start new defense: ${error}`);
     }
-    
 }
