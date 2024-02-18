@@ -1,10 +1,10 @@
 const { ApplicationCommandOptionType } = require("discord.js");
 
-const helpUpdonwDefense = require('../../updowndefense/helpUpdonwDefense');
+const helpUpdonwDefense = require('../../updowndefense/helpUpdownDefense');
 
 module.exports = {
     callback: async (client, interaction) => {
-        await interaction.deferReply();
+        await interaction.deferReply({ ephemeral: true });
         
         const content = interaction.options.getString('컨텐츠');
 
