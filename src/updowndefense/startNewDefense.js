@@ -120,8 +120,7 @@ module.exports = async (interaction) => {
         };
 
         const succeededDefense = async () => {
-            updownDefense.numberOfSolvedProblems += 1;
-            // updownDefense.numberOfSolvedProblems[problemTier] += 1;
+            updownDefense.numberOfSolvedProblems[problemTier] += 1;
             await updownDefense.save();
             if (updownDefense.currentTier < 30) {
                 updownDefense.currentTier += 1;
