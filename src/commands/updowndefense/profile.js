@@ -24,13 +24,14 @@ module.exports = {
         }
 
         const fetchedUser = await UpdownDefense.findOne({ userId: targetUserId });
+        const nickname = targetUserObject.nickname || targetUserObject.user.displayName;
 
         if (!fetchedUser) {
-            return interaction.editReply({ content: `${targetUserObject.nickname}님은 아직 업다운 랜덤 디펜스에 등록하지 않았습니다.` });
+            return interaction.editReply({ content: `${ nickname }님은 아직 업다운 랜덤 디펜스에 등록하지 않았습니다.` });
         }
 
         const embed = new EmbedBuilder()
-            .setAuthor({ name: targetUserObject.nickname, iconURL: targetUserObject.user.avatarURL() })
+            .setAuthor({ name: nickname, iconURL: targetUserObject.user.displayAvatarURL() })
             .setTitle(fetchedUser.bojId)
             .setDescription(`현재 랜덤 티어: ${numberToTier(fetchedUser.currentTier)}\n현재 추가 쿼리: \`${fetchedUser.additionalQuery}\``)
             .addFields(
@@ -39,7 +40,7 @@ module.exports = {
             .setTimestamp()
             .setColor(0xFAAABC);
         
-        await interaction.editReply({ content: '프로필을 불러오는 중입니다...' });
+        await interaction.deleteReply();
         await interaction.followUp({ embeds: [embed] });
     },
 
