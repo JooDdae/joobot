@@ -1,6 +1,8 @@
 const { Client, Interaction, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const UpdownDefense = require('../../models/UpdownDefense');
+const User = require('../../models/User');
 const numberToTier = require('../../utils/numberToTier');
+const Makgora = require('../../models/Makgora');
 
 module.exports = {
     /**
@@ -23,20 +25,27 @@ module.exports = {
             return interaction.editReply({ content: '유저가 존재하지 않습니다.' });
         }
 
-        const fetchedUser = await UpdownDefense.findOne({ userId: targetUserId });
+        const fetchedUser = await User.findOne({ userId: targetUserId });
         const nickname = targetUserObject.nickname || targetUserObject.user.displayName;
 
         if (!fetchedUser) {
-            return interaction.editReply({ content: `${ nickname }님은 아직 업다운 랜덤 디펜스에 등록하지 않았습니다.` });
+            return interaction.editReply({ content: `${ nickname }님은 아직 주때봇에 등록하지 않았습니다.` });
         }
+
+        const bojId = fetchedUser.bojId;
+        const updownDefense = await UpdownDefense.findOne({ userId: targetUserId });
+        const makgora = await Makgora.findOne({ userId: targetUserId });
+        const { currentTier, additionalQuery, numberOfSolvedProblems } = updownDefense;
+        const { rating } = makgora;
 
         const embed = new EmbedBuilder()
             .setAuthor({ name: nickname, iconURL: targetUserObject.user.displayAvatarURL() })
-            .setTitle(fetchedUser.bojId)
-            .setDescription(`현재 랜덤 티어: ${numberToTier(fetchedUser.currentTier)}\n현재 추가 쿼리: \`${fetchedUser.additionalQuery}\``)
+            .setTitle(bojId)
+            .setDescription(`현재 랜덤 티어: ${numberToTier(currentTier)}\n현재 추가 쿼리: \`${additionalQuery}\``)
             .addFields(
-                { name: '성공한 문제 수', value: `${fetchedUser.numberOfSolvedProblems.reduce((acc, cur) => acc + cur, 0)}개`, inline: true },
+                { name: '성공한 문제 수', value: `${numberOfSolvedProblems.reduce((acc, cur) => acc + cur, 0)}개`, inline: true },
             )
+            .addFields({ name: '막고라 레이팅', value: `${Math.round(rating)}`})
             .setTimestamp()
             .setColor(0xFAAABC);
         

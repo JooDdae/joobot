@@ -3,12 +3,15 @@ const { Interaction, EmbedBuilder, ActionRowBuilder, ComponentType, ButtonStyle,
 const UpdownDefense = require('../models/UpdownDefense');
 const getRandomProblems = require('../solvedac/getRandomProblems');
 
+const getBojIdbyUserId = require('../utils/getBojIdbyUserId');
+
 const getRecentSubmission = require('../boj/getRecentSubmission');
 const getSubmissionsBetween = require('../boj/getSubmissionsBetween');
 
 const numberToTier = require('../utils/numberToTier');
 const numberToKoTime = require('../utils/numberToKoTime');
 const getTimeLimit = require('../utils/getTimeLimit');
+const getSubmissionStatus = require('../utils/getSubmissionStatus');
 
 const defenseParticipants = new Set();
 const inButtonProgress = new Set();
@@ -31,8 +34,9 @@ module.exports = async (interaction) => {
             return interaction.editReply({ content: '랜덤 디펜스에 이미 참가하고 있습니다.' });
         }
         
-        const { bojId, currentTier: problemTier, additionalQuery  } = updownDefense;
-        const problemQuery = `-@${bojId} *${problemTier} ${additionalQuery}`;
+        const bojId = await getBojIdbyUserId(userId);
+        const { currentTier: problemTier, additionalQuery  } = updownDefense;
+        const problemQuery = `o? -@${bojId} *${problemTier} (${additionalQuery})`;
         const problems = await getRandomProblems(problemQuery, 1);
     
         if (problems.length === 0) {
@@ -47,7 +51,7 @@ module.exports = async (interaction) => {
         const { problemId, titleKo: problemTitle } = problem;
 
         const embed = new EmbedBuilder()
-            .setAuthor({ name: bojId, iconURL: interaction.user.avatarURL() })
+            .setAuthor({ name: bojId, iconURL: interaction.user.displayAvatarURL() })
             .setTitle(`${problemId}. ${problemTitle}`)
             .setDescription(`https://www.acmicpc.net/problem/${problemId}`)
             // .setURL(`https://www.acmicpc.net/problem/${problemId}`)
@@ -151,18 +155,10 @@ module.exports = async (interaction) => {
             const leftTime = Math.max(0, getTimeLimit(problemTier) - (Date.now() - startTime));
             embed.spliceFields(2, 1, { name: '남은 시간', value: `${numberToKoTime(leftTime)}`, inline: true });
 
-            const submissions = await getSubmissionsBetween(updownDefense.bojId, problemId, lastSubmissionId);
-            let submissionStatus = '';
-            for (const submission of submissions) {
-                if (submission.submissionResult === 'ac') submissionStatus += '✅';
-                else if (submission.submissionResult === 'judging' || submission.submissionResult === 'wait' || submission.submissionResult === 'compile') submissionStatus += '⏳';
-                else submissionStatus += '❌';
-                if(submissionStatus.length % 11 === 10) submissionStatus += '\n';
-            }
-            if (submissionStatus.length === 0) submissionStatus = ' ';
+            let submissionStatus = await getSubmissionStatus(bojId, problemId, lastSubmissionId);
             embed.spliceFields(3, 1, { name: '제출 현황', value: `${submissionStatus}` });
             embed.setTimestamp();
-            await message.edit({ embeds: [embed], components: [buttonRow] });
+            await message.edit({ embeds: [embed] });
             
             if (submissionStatus.includes('✅')) {
                 await succeededDefense();

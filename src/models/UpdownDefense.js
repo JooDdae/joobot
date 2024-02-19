@@ -15,7 +15,7 @@ const updownDefenseSchema = new Schema({
     },
     additionalQuery: {
         type: String,
-        default: 's#50..',
+        default: 's#30..',
     },
     numberOfSolvedProblems: {
         type: Array,

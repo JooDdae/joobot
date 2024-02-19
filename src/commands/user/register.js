@@ -1,12 +1,12 @@
 const { Client, Interaction, ApplicationCommandOptionType, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } = require('discord.js');
 const isValidBojId = require('../../solvedac/isValidBojId');
-const UpdownDefense = require('../../models/UpdownDefense');
-const numberToKoTime = require('../../utils/numberToKoTime');
 const getSolvedacProfileStatus = require('../../solvedac/getSolvedacProfileStatus');
+const UpdownDefense = require('../../models/UpdownDefense');
+const User = require('../../models/User');
+const Makgora = require('../../models/Makgora');
 
 const registerProgress = new Map(); // bojId, {userId, random String}
 const registerUser = new Map(); // userId, bojId
-const registerTime = 1000 * 60 * 3;
 
 module.exports = {
     /**
@@ -19,9 +19,9 @@ module.exports = {
         const userId = interaction.user.id;
 
         try {
-            const updownDefense = await UpdownDefense.findOne({ userId });
-            if (updownDefense) {
-                return interaction.editReply({ content: `${interaction.user.username}님은 이미 ${updownDefense.bojId}로 등록되어 있습니다.` });
+            const user = await User.findOne({ userId });
+            if (user) {
+                return interaction.editReply({ content: `${interaction.user.username}님은 이미 ${user.bojId}로 등록되어 있습니다.` });
             }
 
             if (registerUser.has(userId)) {
@@ -36,7 +36,7 @@ module.exports = {
 
             const fetchedUser = await UpdownDefense.findOne({ bojId });
             if (fetchedUser) {
-                return interaction.editReply({ content: '이미 등록된 아이디입니다.' });
+                return interaction.editReply({ content: '이미 등록된 백준 아이디입니다.' });
             }
 
             if (registerProgress.has(bojId)) {
@@ -49,7 +49,7 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setTitle(`${bojId}`)
-                .setDescription(`5분 이내로 <https://solved.ac/profile/${bojId}> 의 상태 메시지에 아래 코드를 저장한 뒤, ✅버튼을 눌러주세요.\n`)
+                .setDescription(`5분 이내로 <https://solved.ac/profile/${bojId}> 의 상태 메시지에 아래 코드를 포함시킨 뒤, ✅버튼을 눌러주세요.\n`)
                 .addFields(
                     { name: '코드', value: `\`${randomString}\`` }
                 )
@@ -90,13 +90,18 @@ module.exports = {
             collector.on('collect', async (i) => {
                 if (i.customId === 'confirmButton') {
                     const status = await getSolvedacProfileStatus(bojId);
-                    if (status !== randomString) {
-                        await interaction.followUp({ content: '⚠️ 올바르지 않은 코드입니다.', ephemeral: true });
+                    if (!status.includes(randomString)) {
+                        await interaction.followUp({ content: '⚠️ 코드가 포함되어 있지 않습니다.', ephemeral: true });
                         return await i.deferUpdate();
                     }
 
+                    const newUser = new User({ userId, bojId });
+                    await newUser.save();
                     const newUpdownDefense = new UpdownDefense({ userId, bojId });
+                    const newMakgora = new Makgora({ userId, bojId });
                     await newUpdownDefense.save();
+                    await newMakgora.save();
+
                     await endSession('등록되었습니다! ❤️');
                     return await i.deferUpdate();
                 }

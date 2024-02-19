@@ -1,6 +1,7 @@
 const { ApplicationCommandOptionType } = require("discord.js");
 
 const helpUpdonwDefense = require('../../updowndefense/helpUpdownDefense');
+const helpMakgora = require('../../makgora/helpMakgora');
 
 module.exports = {
     callback: async (client, interaction) => {
@@ -13,8 +14,7 @@ module.exports = {
         }
 
         if (content === "makgora") {
-            await interaction.editReply("아직 준비중인 컨텐츠입니다.");
-            // await helpMakgora(interaction);
+            await helpMakgora(interaction);
         }
     },
 
