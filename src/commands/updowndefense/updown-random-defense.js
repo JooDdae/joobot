@@ -73,8 +73,8 @@ module.exports = {
     // botsPermissions: [PermissionFlagsBits.Administrator],
     options: [
         {
-            name: '쿼리변경',
-            description: '변경할 쿼리를 입력해주세요.',
+            name: '추가쿼리변경',
+            description: '문제를 선택할 때 사용할 추가 쿼리를 변경합니다.',
             type: ApplicationCommandOptionType.String,
         },
         {

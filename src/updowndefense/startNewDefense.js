@@ -10,7 +10,8 @@ const numberToTier = require('../utils/numberToTier');
 const numberToKoTime = require('../utils/numberToKoTime');
 const getTimeLimit = require('../utils/getTimeLimit');
 
-const defenseParticipants = new Map();
+const defenseParticipants = new Set();
+const inButtonProgress = new Set();
 
 /**
  * 
@@ -38,10 +39,9 @@ module.exports = async (interaction) => {
             return interaction.editReply({ content: `${problemQuery}에 해당하는 문제가 존재하지 않습니다. \`/updown-random-defense [쿼리]\` 명령어를 통해 난이도를 변경하거나 추가 쿼리를 변경해주세요.` });
         }
 
-
+        
         // 디펜스 준비
-        const randomString = Math.random().toString(15).substring(2, 15) + Math.random().toString(15).substring(2, 15);
-        defenseParticipants.set(userId, randomString);
+        defenseParticipants.add(userId);
 
         const problem = problems[0];
         const { problemId, titleKo: problemTitle } = problem;
@@ -154,11 +154,10 @@ module.exports = async (interaction) => {
             const submissions = await getSubmissionsBetween(updownDefense.bojId, problemId, lastSubmissionId);
             let submissionStatus = '';
             for (const submission of submissions) {
-                if(submissionStatus.length > 0 && submissionStatus.length % 10 === 0) submissionStatus += '\n';
-
                 if (submission.submissionResult === 'ac') submissionStatus += '✅';
                 else if (submission.submissionResult === 'judging' || submission.submissionResult === 'wait' || submission.submissionResult === 'compile') submissionStatus += '⏳';
                 else submissionStatus += '❌';
+                if(submissionStatus.length % 11 === 10) submissionStatus += '\n';
             }
             if (submissionStatus.length === 0) submissionStatus = ' ';
             embed.spliceFields(3, 1, { name: '제출 현황', value: `${submissionStatus}` });
@@ -173,25 +172,32 @@ module.exports = async (interaction) => {
         };
 
         collector.on('collect', async (i) => {
-            if(await updateEmbed()) {
-                return await i.deferUpdate();
+            await i.deferReply({ ephemeral: true });
+
+            if (inButtonProgress.has(userId)) {
+                return await i.editReply({ content: '다른 요청을 처리중입니다.' });
             }
+            inButtonProgress.add(userId);
             
-            if (i.customId === 'updateButton') {
-                return await i.deferUpdate();
+            if (await updateEmbed() || i.customId === 'updateButton') {
+                inButtonProgress.delete(userId);
+                return await i.deleteReply();
             }
-            
+
             if (i.customId === 'giveupButton') {
                 if (i.user.id !== userId) {
-                    return await i.reply({ content: '남의 디펜스를 포기할 수 없습니다.', ephemeral: true });
+                    inButtonProgress.delete(userId);
+                    return await i.editReply({ content: '남의 디펜스를 포기할 수 없습니다.' });
                 }
 
                 await failedDefense('디펜스를 포기하였습니다.');
-                return await i.deferUpdate();
+                inButtonProgress.delete(userId);
+                return await i.deleteReply();
             }
         });
 
-        collector.on('end', async (collected, reason) => {
+
+        collector.on('end', async (_, reason) => {
             if (reason === 'time') {
                 if(await updateEmbed() === false) {
                     return await failedDefense('제한 시간 초과로 디펜스를 실패하였습니다.');
