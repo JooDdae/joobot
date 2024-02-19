@@ -181,7 +181,7 @@ module.exports = async (userId, targetUserId, query, timeLimit, applyRating, msg
 
         collector.on('collect', async (i) => {
             await i.deferReply({ ephemeral: true });
-            if (i.customId !== 'tieButton' && i.user.id !== targetUserId && i.user.id !== userId) {
+            if (i.customId !== 'updateButton' && i.user.id !== targetUserId && i.user.id !== userId) {
                 return await i.editReply({ content: `${i.customId === 'tieButton' ? '무승부' : '포기'}할 권한이 없습니다.` });
             }
 
