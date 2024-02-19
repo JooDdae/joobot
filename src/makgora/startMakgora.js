@@ -156,8 +156,8 @@ module.exports = async (userId, targetUserId, query, timeLimit, applyRating, msg
 
 
         const checkMakgora = async () => {
-            const userFirstSolvedSubmission = await getFirstSolvedSubmission(userBojId, problemId);
-            const targetFirstSolvedSubmission = await getFirstSolvedSubmission(targetBojId, problemId);
+            const userFirstSolvedSubmission = await getFirstSolvedSubmission(userBojId, problemId, lastSubmissionId);
+            const targetFirstSolvedSubmission = await getFirstSolvedSubmission(targetBojId, problemId, lastSubmissionId);
 
             const userSolvedSubmissionId = userFirstSolvedSubmission?.submissionId || Infinity;
             const targetSolvedSubmissionId = targetFirstSolvedSubmission?.submissionId || Infinity;
@@ -167,7 +167,7 @@ module.exports = async (userId, targetUserId, query, timeLimit, applyRating, msg
                 return false;
             }
 
-            const submissions = getSubmissionsBetween(firstSolvedSubmissionId === userSolvedSubmissionId ? targetBojId : userBojId,
+            const submissions = await getSubmissionsBetween(firstSolvedSubmissionId === userSolvedSubmissionId ? targetBojId : userBojId,
                                                         problemId, lastSubmissionId, firstSolvedSubmissionId);
             for (const submission of submissions) { // 첫번째 AC 제출 사이에 채점이 끝나지 않은 코드가 있다면..
                 if (submission.submissionResult === 'judging' || submission.submissionResult === 'wait' || submission.submissionResult === 'compile') {
@@ -175,7 +175,7 @@ module.exports = async (userId, targetUserId, query, timeLimit, applyRating, msg
                 }
             }
 
-            await endMakgora(userSubmissionId < targetSubmissionId ? "win" : "lose");
+            await endMakgora(userSolvedSubmissionId < targetSolvedSubmissionId ? "win" : "lose");
             return true;
         };
 
